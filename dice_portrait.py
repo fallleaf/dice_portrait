@@ -1,7 +1,9 @@
-import numpy as np
 import datetime
+import os
+import sys
+
 import cv2
-import os, sys
+import numpy as np
 
 
 # 获得图片名，色子列数，色子是否旋转
@@ -54,7 +56,7 @@ def getDice(DICEPATH):  # 读入色子图形文件
 
 def calculateDice(im, imagefile, p, dice, y_max, x_max, ROTATE):  # 计算每个16x16图块的值
     cv2.namedWindow( imagefile, 0)
-    cv2.resizeWindow( imagefile, 560, 792)
+    cv2.resizeWindow(imagefile, 640, int(640 * y_max / x_max))
     block_data = np.arange(16 * 16, dtype="u8").reshape(16, 16)
     b = np.arange(16 * 16, dtype="u8").reshape(16, 16)
     image_data = np.arange(y_max * x_max, dtype="u8").reshape(y_max, x_max)
@@ -124,13 +126,15 @@ def main():
     imagefile, DICE_WIDTH, ROTATE = getvalue()
     DICEPATH = EXEC_PATH + '\\dice_image\\'
     OUTPUTPATH = EXEC_PATH + '\\output\\'
+    if not (os.path.exists(OUTPUTPATH)):
+        os.mkdir(OUTPUTPATH)
     dice = getDice(DICEPATH)
     # 初始化
     im = cv2.imread(imagefile, 0)
     width, hight, im = AjustImage(DICE_WIDTH, im)
     x_max = int(width/16)
     y_max = int(hight/16)
-
+    print("dices:", x_max, '*', y_max, '=', x_max * y_max)
     # 定义数组
     image_data = np.arange(y_max * x_max, dtype="u8").reshape( y_max, x_max )
     dice_data = np.arange(y_max * x_max, dtype="u8").reshape( y_max, x_max )
@@ -141,7 +145,7 @@ def main():
     p = [75, 95, 110, 125, 160, 200]
     im, dice_data = calculateDice(im, imagefile, p, dice, y_max, x_max, ROTATE)
     print(write_Dice(im, OUTPUTPATH, imagefile, DICE_WIDTH, y_max, x_max, dice_data))
-    print("dices:", x_max, '*', y_max, '=', x_max*y_max)
+
     end_time = datetime.datetime.now()
     print('time used:', end_time - start_time)
     cv2.imshow(imagefile, im )
