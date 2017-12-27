@@ -71,24 +71,35 @@ def calculateDice(im, imagefile, p, dice, dice_hist, y_max, x_max, ROTATE):  # �
         for i in range(x_max):
             # 获得16x16图片
             b = im[j * 16:(j + 1) * 16, i * 16:(i + 1) * 16]
-            # 采用直方图比较
-
-            b_hist = cv2.calcHist([b], [0], None, [2], [0, 256])
-
+            # # 采用直方图比较
+            #
+            # b_hist = cv2.calcHist([b], [0], None, [2], [0, 256])
+            #
             minDistance = 500
+            # for ij in range(9):
+            #     vec1 = np.array(dice_hist[ij])
+            #     vec2 = np.array(b_hist)
+            #     dist = np.sqrt(np.sum(np.square(vec1 - vec2)))
+            #     print(dist)
+            #     if dist < minDistance:
+            #         minDistance = dist
+            #         n = ij
+
+            for ii in range(16):
+                for jj in range(16):
+                    block_data[ii, jj] = b[ii, jj]
+                image_data[j, i] = int(np.median(block_data))
+
             for ij in range(9):
-                vec1 = np.array(dice_hist[ij])
-                vec2 = np.array(b_hist)
-                dist = np.sqrt(np.sum(np.square(vec1 - vec2)))
-                print(dist)
+
+                dice_average = np.mean(dice[ij])
+
+                print(dice_average)
+                dist = abs(dice_average - image_data[j, i])
                 if dist < minDistance:
                     minDistance = dist
                     n = ij
 
-            # for ii in range(16):
-            #     for jj in range(16):
-            #         block_data[ii, jj] = b[ii, jj]
-            #     image_data[j, i] = int(np.median( block_data))
             # # 根据色度值确定色子点数
             # if (image_data[j, i] < p[0]):
             #     n = 5
