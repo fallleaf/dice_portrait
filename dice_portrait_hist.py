@@ -45,6 +45,7 @@ def AjustImage(DICE_WIDTH, image):  # 调整图片
     hight = int(hight * ratio)
     image = cv2.resize(image, (width, hight))
     #image = cv2.equalizeHist(image)
+    #cv2.imshow("origin", image)
     #clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(4,4))
     #image = clahe.apply(image)
     return width, hight, image
@@ -66,6 +67,11 @@ def calculateDice(im, imagefile, p, dice, y_max, x_max, ROTATE):  # 计算每个
     b = np.arange(16 * 16, dtype="u8").reshape(16, 16)
     image_data = np.arange(y_max * x_max, dtype="u8").reshape(y_max, x_max)
     dice_data = np.arange(y_max * x_max, dtype="u8").reshape(y_max, x_max)
+    z = np.zeros((256),dtype = np.float)
+    q = np.zeros((256),dtype = np.float)
+    c = np.zeros((256),dtype = np.float)
+
+
     dice2_rotate = False
     dice3_rotate = False
     dice6_rotate = False
@@ -90,22 +96,46 @@ def calculateDice(im, imagefile, p, dice, y_max, x_max, ROTATE):  # 计算每个
             for ii in range(16):
                 for jj in range(16):
                     block_data[ii, jj] = b[ii, jj]
-                image_data[j, i] = int(np.mean(block_data))
+                image_data[j, i] = int(np.median(block_data))
     #image_data_average = int(np.mean(image_data))
-    image_data_max = np.max(image_data)
-    image_data_min = np.min(image_data)
+    #image_data_max = np.max(image_data)
+    #image_data_min = np.min(image_data)
     #print(image_data_max,image_data_min)
     #image_data_mean = np.mean(image_data)
     #image_data_std = np.std(image_data)    
+    for j in range(y_max):
+        for i in range(x_max):
+            #print(image_data[j, i])
+            z[image_data[j, i]] += 1
+    print(z)
+    for i in range(0,256):
+        q[i] = z[i]/float(x_max*y_max)
+    c[0] = q[0]
+    for i in range(1,256):
+        c[i] = c[i-1]+ q[i]
+    #print(np.sum(c))
+    
+    #des = np.zeros((y_max, x_max),dtype=np.uint8)
+
+    for y in range(y_max):
+        for x in range(x_max):
+            image_data[y, x] = 255*c[image_data[y, x]]
+    print(image_data)
+    
+    
+    
     
     cv2.namedWindow(imagefile, 0)
     cv2.resizeWindow(imagefile, 640, int(640 * y_max / x_max))
+    
+    
+    
     
     for j in range(y_max):
         for i in range(x_max):
             #temp = image_data[j, i]
             #print(temp)
-            image_data[j, i] = int(((image_data[j, i] - image_data_min)/ (image_data_max - image_data_min))*100)
+            #image_data[j, i] = int(((image_data[j, i] - image_data_min)/ (image_data_max - image_data_min))*100)
             #image_data[j, i] = int(1/ (1+ np.exp(image_data[j, i]
             #print(image_data[j, i])
                    
@@ -178,10 +208,10 @@ def main():
     dice_data = np.arange(y_max * x_max, dtype="u8").reshape(y_max, x_max)
 
     # 灰度对应1-6的值
-    # p = [53,85,117,139,151,203]#原始分组
-    # p = [45, 65, 80, 95, 130, 155]
+    #p = [53,85,117,139,151,203]#原始分组
+    #p = [45, 65, 80, 95, 130, 155]
     #p = [75, 95, 110, 125, 160, 200]
-    p = [17, 34, 51, 68, 85, 100]
+    p = [20, 30, 40, 50, 85, 100]
     im, dice_data = calculateDice(im, imagefile, p, dice, y_max, x_max, ROTATE)
     print(write_Dice(im, OUTPUTPATH, imagefile, DICE_WIDTH, y_max, x_max, dice_data))
 
