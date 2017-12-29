@@ -57,22 +57,29 @@ def getDice(DICEPATH):  # 读入色子图形文件
 def calculateDice(im, imagefile, p, dice, y_max, x_max, ROTATE):  # 计算每个16x16图块的值
     cv2.namedWindow( imagefile, 0)
     cv2.resizeWindow(imagefile, 640, int(640 * y_max / x_max))
-    block_data = np.arange(16 * 16, dtype="u8").reshape(16, 16)
+    # 定义数组16x16大小色子数组
+    block_data = np.arange(256, dtype="u8").reshape(16, 16)
+    # 定义截图16x16大小数组
     b = np.arange(16 * 16, dtype="u8").reshape(16, 16)
+    # 定义按16x16分割后图片灰度值数组
     image_data = np.arange(y_max * x_max, dtype="u8").reshape(y_max, x_max)
+    # 定义色子点数数组
     dice_data = np.arange(y_max * x_max, dtype="u8").reshape(y_max, x_max)
+    #判断2，3，6点色子是否旋转
     dice2_rotate = False
     dice3_rotate = False
     dice6_rotate = False
+
     for j in range( y_max ):
         for i in range( x_max ):
             # 获得16x16图片
             b = im[j * 16:(j + 1) * 16, i * 16:(i + 1) * 16]
+            # 计算16x16图片色度平均值
             for ii in range(16):
                 for jj in range(16):
                     block_data[ii, jj] = b[ii, jj]
                 image_data[j, i] = int(np.median( block_data))
-                # 根据色度值确定色子点数
+            # 根据色度值确定色子点数
             if (image_data[j, i] < p[0]):
                 n = 5
             elif (image_data[j, i] >= p[0]) and (image_data[j, i] < p[1]):
