@@ -1,4 +1,6 @@
-import datetime, os, sys
+import datetime
+import os
+import sys
 import cv2
 import numpy as np
 #import matplotlib.pyplot as plt
@@ -11,17 +13,15 @@ def getvalue():
         sys.exit(1)
     ROTATE = False
     DICE_WIDTH = 50
-    
+
     if len(sys.argv) == 2:
         imagefile = sys.argv[1]
-
     elif len(sys.argv) == 3:
         imagefile = sys.argv[1]
         DICE_WIDTH = int(sys.argv[2])
         if (DICE_WIDTH > 150 or DICE_WIDTH < 30):
             print("色子列数不正确，应在30-150之间")
             sys.exit(1)
-        
     else:
         imagefile = sys.argv[1]
         DICE_WIDTH = int(sys.argv[2])
@@ -34,7 +34,6 @@ def getvalue():
             print("1:色子旋转, 0:色子不旋转")
             sys.exit(1)
     return imagefile, DICE_WIDTH, ROTATE
-
 
 def AjustImage(DICE_WIDTH, image):  # 调整图片
     hight, width = image.shape[:2]
@@ -51,13 +50,10 @@ def getDice(DICEPATH):  # 读入色子图形文件
         dice[i] = cv2.imread('./dice_image/' + str(i + 1) + 'w.png', 0)
     return dice
 
-
 def calculateDice(im, imagefile, p, dice, ROTATE):  # 处理图片
 
-    
     x_max = int((im.shape[1]/16))
     y_max = int((im.shape[0]/16))
-    
 
     #b = np.arange(256, dtype="u8").reshape(16, 16)
 
@@ -105,10 +101,10 @@ def calculateDice(im, imagefile, p, dice, ROTATE):  # 处理图片
                         n = 6
             else:
                 n = 0
-           
+
             im[j * 16:(j + 1) * 16, i * 16:(i + 1) * 16] = dice[n]
             dice_data[j, i] = n + 1
-    
+
             #cv2.imshow(imagefile, im)
             #cv2.waitKey(1)
     return im, dice_data
@@ -116,12 +112,12 @@ def calculateDice(im, imagefile, p, dice, ROTATE):  # 处理图片
 
 def write_Dice(im, OUTPUTPATH, imagefile, dice_data):  # 将色子点数写入文件
     y_max, x_max = np.shape(dice_data)
-    
+
     DICE_WIDTH = x_max
     print("色子数量", y_max, '*', x_max, '=', x_max * y_max)
     cv2.imwrite(OUTPUTPATH + str(DICE_WIDTH) + '_hist_' + imagefile, im)
     f = open(OUTPUTPATH + str(DICE_WIDTH) + '_hist_' + imagefile + '.txt', 'wt')
-        
+
     for y in range(y_max):
         f.write((str(y + 1) + ':'))
         for x in range(x_max):
@@ -133,16 +129,16 @@ def write_Dice(im, OUTPUTPATH, imagefile, dice_data):  # 将色子点数写入�
 
 
 def main():
-       
+
     start_time = datetime.datetime.now()
-    
+
     #初始化文件路径
     EXEC_PATH = os.getcwd()
     DICEPATH = EXEC_PATH + '\\dice_image\\'
     OUTPUTPATH = EXEC_PATH + '\\output\\'
     if not (os.path.exists(OUTPUTPATH)):
         os.mkdir(OUTPUTPATH)
-    
+
     #获得命令行输入参数 
     imagefile, DICE_WIDTH, ROTATE = getvalue()
     
@@ -153,7 +149,7 @@ def main():
     
     #调整图片大小
     width, hight, im = AjustImage(DICE_WIDTH, im)
-       
+
     # 定义数组 可以不定义，自定义函数中已定义，自然继承类型
     #image_data = np.arange(y_max * x_max, dtype="u8").reshape(y_max, x_max)
     #dice_data = np.arange(y_max * x_max, dtype="u8").reshape(y_max, x_max)
@@ -163,8 +159,7 @@ def main():
     #p = [60, 65, 80, 90, 140, 150]
     #p = [75, 90, 100, 110, 120, 200]
     p = [60, 80, 110, 150, 190, 220]
-    
-    
+
     im, dice_data = calculateDice(im, imagefile, p, dice, ROTATE)
     write_Dice(im, OUTPUTPATH, imagefile, dice_data)
 
