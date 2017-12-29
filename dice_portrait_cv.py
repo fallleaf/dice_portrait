@@ -51,12 +51,17 @@ def getDice(DICEPATH):  # 读入色子图形文件
         dice[i] = cv2.imread('./dice_image/' + str(i + 1) + 'w.png', 0)
     return dice
 
+
 def calculateDice(im, imagefile, p, dice, ROTATE):  # 处理图片
+
     
     x_max = int((im.shape[1]/16))
     y_max = int((im.shape[0]/16))
     
+
     #b = np.arange(256, dtype="u8").reshape(16, 16)
+
+
     dice_data = np.arange(y_max * x_max, dtype="u8").reshape(y_max, x_max)
 
     dice2_rotate = False
@@ -69,10 +74,12 @@ def calculateDice(im, imagefile, p, dice, ROTATE):  # 处理图片
 
     for j in range(y_max):
         for i in range(x_max):
+
             # 获得16x16图片的色度平均值/中位数
             #b = im[j * 16:(j + 1) * 16, i * 16:(i + 1) * 16]
             #image_data = int(np.mean(b))
             image_data = int(np.mean(im[j * 16:(j + 1) * 16, i * 16:(i + 1) * 16]))
+
             # 根据色度值确定色子点数
             if (image_data < p[0]):
                 n = 5
