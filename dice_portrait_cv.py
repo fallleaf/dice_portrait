@@ -3,7 +3,6 @@ import os
 import sys
 import cv2
 import numpy as np
-#import matplotlib.pyplot as plt
 
 # 获得图片名，色子列数，色子是否旋转
 def getvalue():
@@ -13,6 +12,7 @@ def getvalue():
         sys.exit(1)
     ROTATE = False
     DICE_WIDTH = 50
+
 
     if len(sys.argv) == 2:
         imagefile = sys.argv[1]
@@ -72,8 +72,6 @@ def calculateDice(im, imagefile, p, dice, ROTATE):  # 处理图片
         for i in range(x_max):
 
             # 获得16x16图片的色度平均值/中位数
-            #b = im[j * 16:(j + 1) * 16, i * 16:(i + 1) * 16]
-            #image_data = int(np.mean(b))
             image_data = int(np.mean(im[j * 16:(j + 1) * 16, i * 16:(i + 1) * 16]))
 
             # 根据色度值确定色子点数
@@ -114,7 +112,7 @@ def write_Dice(im, OUTPUTPATH, imagefile, dice_data):  # 将色子点数写入�
     y_max, x_max = np.shape(dice_data)
 
     DICE_WIDTH = x_max
-    print("色子数量", y_max, '*', x_max, '=', x_max * y_max)
+    print("色子数量:%s*%s=%s"%(y_max, x_max, x_max * y_max))
     cv2.imwrite(OUTPUTPATH + str(DICE_WIDTH) + '_hist_' + imagefile, im)
     f = open(OUTPUTPATH + str(DICE_WIDTH) + '_hist_' + imagefile + '.txt', 'wt')
 
@@ -158,13 +156,13 @@ def main():
     #p = [53,85,117,139,151,203]#原始分组
     #p = [60, 65, 80, 90, 140, 150]
     #p = [75, 90, 100, 110, 120, 200]
-    p = [60, 80, 110, 150, 190, 220]
-
+    #p = [60, 80, 110, 150, 190, 220]
+    p = np.array([60, 80, 110, 150, 190, 220], dtype='u8')
     im, dice_data = calculateDice(im, imagefile, p, dice, ROTATE)
     write_Dice(im, OUTPUTPATH, imagefile, dice_data)
 
     end_time = datetime.datetime.now()
-    print('程序运行时间:', end_time - start_time,'秒')
+    print('程序运行时间:%s秒'%(end_time - start_time))
     cv2.imshow(imagefile, im)
     cv2.waitKey(0)
 
